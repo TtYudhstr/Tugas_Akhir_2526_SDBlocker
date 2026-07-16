@@ -2,7 +2,7 @@
 
 **Prototipe pengaman USB berbasis algoritma *Authenticated Encryption with Associated Data* (AEAD) untuk mencegah serangan *juice jacking*.**
 
-Repositori ini memuat seluruh aset Tugas Akhir — *source code* firmware, aplikasi Authenticator, skematik, hingga desain prototipe.
+Repositori ini memuat seluruh aset Tugas Akhir *source code* firmware, aplikasi Authenticator, skematik, hingga desain prototipe.
 
 > 🎬 **Video simulasi perangkat:** https://www.youtube.com/watch?v=aObp-zUMLXI
 >
@@ -12,11 +12,11 @@ Repositori ini memuat seluruh aset Tugas Akhir — *source code* firmware, aplik
 
 ## 📌 Latar Belakang
 
-*Charging station* publik (bandara, stasiun, kafe) menyimpan risiko **juice jacking**: pencurian data atau penyisipan *malware* melalui jalur data USB yang aktif tanpa disadari pengguna saat mengisi daya. USB data blocker pasif yang beredar di pasaran memutus jalur data secara **permanen**, sehingga aman tetapi tidak fleksibel — pengguna tidak dapat melakukan transfer data sama sekali.
+*Charging station* publik (bandara, stasiun, kafe) menyimpan risiko **juice jacking**: pencurian data atau penyisipan *malware* melalui jalur data USB yang aktif tanpa disadari pengguna saat mengisi daya. USB data blocker pasif yang beredar di pasaran memutus jalur data secara **permanen**, sehingga aman tetapi tidak fleksibel, pengguna tidak dapat melakukan transfer data sama sekali.
 
 **SD-Blocker** menjembatani keduanya dengan prinsip **fail-closed adaptif**:
 
-- Kondisi *default*: hanya jalur daya (VBUS/GND) yang tersambung — jalur data D+/D− **diputus secara fisik** oleh IC USB switch.
+- Kondisi *default*: hanya jalur daya (VBUS/GND) yang tersambung, jalur data D+/D− **diputus secara fisik** oleh IC USB switch.
 - Jalur data **hanya terbuka** setelah pengguna terautentikasi melalui protokol *challenge–response* berbasis AEAD **ASCON-AEAD128 (NIST SP 800-232)**.
 - Saat sesi berakhir (atau autentikasi gagal), sistem selalu kembali ke kondisi tertutup.
 
@@ -50,9 +50,9 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 ## 📂 Struktur Repositori
 
 ```
-├── firmware/            # Firmware ESP32-S3 (Arduino) — ASCON-AEAD128
+├── firmware/            # Firmware ESP32-S3 (Arduino), ASCON-AEAD128
 │   └── firmware.ino
-├── firmware-chacha/     # Varian pembanding — ChaCha20-Poly1305
+├── firmware-chacha/     # Varian pembanding, ChaCha20-Poly1305
 │   └── firmware_chacha.ino
 ├── app/                 # Aplikasi Authenticator (Python)
 │   ├── main.py          # GUI Tkinter (splash, autentikasi, sesi, log)
@@ -113,7 +113,7 @@ Perbandingan lengkap ASCON vs ChaCha20-Poly1305 serta analisis terhadap peneliti
 
 | Library | Kegunaan | Sumber |
 |---|---|---|
-| pyascon — diadaptasi sebagai `ascon_nist.py` | Implementasi ASCON-AEAD128 (NIST SP 800-232) sisi aplikasi | https://github.com/meichlseder/pyascon |
+| pyascon, diadaptasi sebagai `ascon_nist.py` | Implementasi ASCON-AEAD128 (NIST SP 800-232) sisi aplikasi | https://github.com/meichlseder/pyascon |
 | PyCryptodome (`Crypto.Protocol.KDF`, `Crypto.Hash`) | Derivasi kunci PBKDF2-HMAC-SHA256 (600.000 iterasi) | https://github.com/Legrandin/pycryptodome |
 | pySerial | Komunikasi serial aplikasi ↔ ESP32-S3 | https://github.com/pyserial/pyserial |
 | Tkinter | Antarmuka grafis aplikasi | Pustaka standar Python |
@@ -121,9 +121,9 @@ Perbandingan lengkap ASCON vs ChaCha20-Poly1305 serta analisis terhadap peneliti
 
 ### Referensi utama
 
-- NIST SP 800-232 — *Ascon-Based Lightweight Cryptography Standards for Constrained Devices*
+- NIST SP 800-232, *Ascon-Based Lightweight Cryptography Standards for Constrained Devices*
 - Spesifikasi ASCON: https://ascon.iaik.tugraz.at/
-- Datasheet FSUSB42MUX (onsemi) — *Low-Power, Two-Port, High-Speed USB 2.0 Switch*
+- Datasheet FSUSB42MUX (onsemi), *Low-Power, Two-Port, High-Speed USB 2.0 Switch*
 
 ## 🎓 Tentang Proyek
 
@@ -131,6 +131,6 @@ Proyek ini merupakan Tugas Akhir:
 
 > **"Rancang Bangun Prototipe Smart USB Data Blocker Berbasis Algoritma Authenticated Encryption with Associated Data (AEAD) untuk Mencegah Serangan Juice Jacking"**
 >
-> Seto Yudhistiro Hatmojo — IV Rekayasa Perangkat Keras Kriptografi, Politeknik Siber dan Sandi Negara, 2026.
+> Seto Yudhistiro Hatmojo, IV Rekayasa Perangkat Keras Kriptografi, Politeknik Siber dan Sandi Negara, 2026.
 
 Video simulasi pra-sidang: https://www.youtube.com/watch?v=aObp-zUMLXI
