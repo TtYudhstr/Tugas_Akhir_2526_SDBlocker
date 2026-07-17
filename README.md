@@ -2,7 +2,10 @@
 
 **Prototipe pengaman USB berbasis algoritma *Authenticated Encryption with Associated Data* (AEAD) untuk mencegah serangan *juice jacking*.**
 
-Repositori ini memuat seluruh aset Tugas Akhir *source code* firmware, aplikasi Authenticator, skematik, hingga desain prototipe.
+Repositori ini memuat seluruh aset Tugas Akhir, meliputi *source code* firmware, aplikasi Authenticator, skematik, hingga desain prototipe. Sistem diimplementasikan dalam **dua varian algoritma AEAD** yang diuji dan dibandingkan secara menyeluruh:
+
+1. **ASCON-AEAD128** (NIST SP 800-232) sebagai implementasi utama, dan
+2. **ChaCha20-Poly1305** (RFC 8439) sebagai implementasi pembanding.
 
 > 🎬 **Video simulasi perangkat:** https://www.youtube.com/watch?v=aObp-zUMLXI
 >
@@ -12,52 +15,56 @@ Repositori ini memuat seluruh aset Tugas Akhir *source code* firmware, aplikasi 
 
 ## 📌 Latar Belakang
 
-*Charging station* publik (bandara, stasiun, kafe) menyimpan risiko **juice jacking**: pencurian data atau penyisipan *malware* melalui jalur data USB yang aktif tanpa disadari pengguna saat mengisi daya. USB data blocker pasif yang beredar di pasaran memutus jalur data secara **permanen**, sehingga aman tetapi tidak fleksibel, pengguna tidak dapat melakukan transfer data sama sekali.
+*Charging station* publik di bandara, stasiun, dan kafe menyimpan risiko **juice jacking**, yaitu pencurian data atau penyisipan *malware* melalui jalur data USB yang aktif tanpa disadari pengguna saat mengisi daya. USB data blocker pasif yang beredar di pasaran memutus jalur data secara **permanen**. Pendekatan tersebut aman, tetapi tidak fleksibel karena pengguna tidak dapat melakukan transfer data sama sekali.
 
 **SD-Blocker** menjembatani keduanya dengan prinsip **fail-closed adaptif**:
 
-- Kondisi *default*: hanya jalur daya (VBUS/GND) yang tersambung, jalur data D+/D− **diputus secara fisik** oleh IC USB switch.
-- Jalur data **hanya terbuka** setelah pengguna terautentikasi melalui protokol *challenge–response* berbasis AEAD **ASCON-AEAD128 (NIST SP 800-232)**.
-- Saat sesi berakhir (atau autentikasi gagal), sistem selalu kembali ke kondisi tertutup.
+- Kondisi *default*: hanya jalur daya (VBUS/GND) yang tersambung, sedangkan jalur data D+/D- **diputus secara fisik** oleh IC USB switch.
+- Jalur data **hanya terbuka** setelah pengguna terautentikasi melalui protokol *challenge-response* berbasis AEAD.
+- Saat sesi berakhir, atau ketika autentikasi gagal, sistem selalu kembali ke kondisi tertutup.
 
 ## ⚙️ Arsitektur Perangkat
 
 | Komponen | Fungsi |
 |---|---|
 | **ESP32-S3** | Mikrokontroler utama: pembangkit nonce (TRNG perangkat keras), verifikasi tag AEAD, kendali switch |
-| **FSUSB42MUX** | IC USB switch: memutus/menyambungkan jalur D+/D− secara fisik |
-| **LED indikator** | Status perangkat (tertutup / sesi aktif) |
+| **FSUSB42MUX** | IC USB switch yang memutus/menyambungkan jalur D+/D- secara fisik |
+| **LED indikator** | Penanda status perangkat (tertutup / sesi aktif) |
 | **PCB custom** | Desain papan rangkaian prototipe (lihat folder `hardware/`) |
 
-### Protokol Challenge–Response
+### Protokol Challenge-Response
 
 ```
 SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
         |                                           |
         |--- CHALLENGE: nonce 96-bit (TRNG) ------->|
         |                                           | K = PBKDF2-SHA256(password, salt, 600.000 iterasi)
-        |                                           | C ‖ T = ASCON-AEAD128(K, nonce, AD, payload)
+        |                                           | C || T = AEAD(K, nonce, AD, payload)
         |<-- RESPONSE: payload terenkripsi + tag ---|
         | verifikasi tag T                          |
         | tag valid  -> FSUSB42 sambungkan D+/D-    |
         | tag salah  -> jalur data tetap tertutup   |
 ```
 
-- Nonce dibangkitkan oleh TRNG ESP32-S3 dan tidak pernah dipakai ulang (diverifikasi 1.000.000 sampel, 0% perulangan).
+- Fungsi AEAD pada diagram di atas berlaku untuk kedua varian: ASCON-AEAD128 maupun ChaCha20-Poly1305.
+- Nonce dibangkitkan oleh TRNG ESP32-S3 dan tidak pernah dipakai ulang (diverifikasi pada 1.000.000 sampel dengan 0% perulangan).
 - Payload memuat kode instruksi, identitas perangkat (serial number), dan timestamp; format divalidasi sebelum diproses.
-- Kegagalan apa pun (tag salah, format salah, timeout 5 detik) membuat sistem tetap/kembali **fail-closed**.
+- Kegagalan apa pun (tag salah, format salah, timeout 5 detik) membuat sistem tetap atau kembali **fail-closed**.
 
 ## 📂 Struktur Repositori
 
 ```
-├── firmware/            # Firmware ESP32-S3 (Arduino), ASCON-AEAD128
+├── firmware/            # Firmware ESP32-S3 varian ASCON-AEAD128
 │   └── firmware.ino
-├── firmware-chacha/     # Varian pembanding, ChaCha20-Poly1305
+├── firmware-chacha/     # Firmware ESP32-S3 varian ChaCha20-Poly1305
 │   └── firmware_chacha.ino
-├── app/                 # Aplikasi Authenticator (Python)
+├── app/                 # Aplikasi Authenticator varian ASCON (Python)
 │   ├── main.py          # GUI Tkinter (splash, autentikasi, sesi, log)
 │   ├── ascon_nist.py    # Implementasi ASCON-AEAD128 (NIST SP 800-232)
 │   └── UX2_ASCON.py     # Versi CLI
+├── app-chacha/          # Aplikasi Authenticator varian ChaCha20-Poly1305 (Python)
+│   ├── main_chacha.py   # GUI Tkinter
+│   └── UX2_ChaCha.py    # Versi CLI
 ├── hardware/            # Skematik & desain PCB prototipe
 └── docs/                # Dokumentasi & flowchart
 ```
@@ -68,35 +75,59 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 
 ```bash
 pip install pyserial pycryptodome
+
+# Varian ASCON-AEAD128
 python app/main.py
+
+# Varian ChaCha20-Poly1305
+python app-chacha/main_chacha.py
 ```
 
 Membangun *executable* portabel (Windows):
 
 ```bash
 pip install pyinstaller
+
+# Varian ASCON
 pyinstaller --onefile --windowed --icon=shield.ico app/main.py
+
+# Varian ChaCha20-Poly1305
+pyinstaller --onefile --windowed --icon=shield.ico app-chacha/main_chacha.py
 ```
 
-Fitur aplikasi: deteksi serial number otomatis (read-only), buka jalur data, tutup sesi, ganti password, dan penyimpanan log aktivitas (.txt) dengan timestamp.
+Fitur kedua varian aplikasi identik: deteksi serial number otomatis (read-only), buka jalur data, tutup sesi, ganti password, dan penyimpanan log aktivitas (.txt) dengan timestamp.
 
 ## 🔌 Kompilasi Firmware
 
-1. Pasang **Arduino IDE** + board package **ESP32 by Espressif** (pilih board *ESP32S3 Dev Module*).
+1. Pasang **Arduino IDE** beserta board package **ESP32 by Espressif** (pilih board *ESP32S3 Dev Module*).
 2. Pasang library yang dibutuhkan (lihat tabel sumber library di bawah).
-3. Buka `firmware/firmware.ino`, lalu *upload* ke ESP32-S3.
+3. Pilih varian yang diinginkan:
+   - `firmware/firmware.ino` untuk varian ASCON-AEAD128, atau
+   - `firmware-chacha/firmware_chacha.ino` untuk varian ChaCha20-Poly1305.
+4. *Upload* ke ESP32-S3.
+
+Kedua firmware memakai alur autentikasi, penyimpanan kredensial (Preferences/LittleFS), dan kendali FSUSB42 yang sama. Perbedaannya hanya pada primitif AEAD yang digunakan.
 
 ## 📊 Ringkasan Hasil Pengujian
 
+### Pengujian fungsional (berlaku untuk kedua varian)
+
 | Pengujian | Hasil |
 |---|---|
-| Known Answer Test (KAT) ASCON-AEAD128 | 100% sesuai vektor uji NIST |
+| Known Answer Test (KAT) | 100% sesuai vektor uji |
 | Keunikan nonce (1.000.000 sampel TRNG) | 0% perulangan |
 | Penolakan autentikasi tidak sah | 100% |
-| Latensi dekripsi ASCON (rata-rata, n=1000) | 64,73 µs |
-| Alokasi memori state ASCON | 40 B (vs ChaCha20-Poly1305 240 B) |
 
-Perbandingan lengkap ASCON vs ChaCha20-Poly1305 serta analisis terhadap penelitian terdahulu tersedia pada dokumen Tugas Akhir.
+### Perbandingan ASCON-AEAD128 vs ChaCha20-Poly1305
+
+| Parameter | ASCON-AEAD128 | ChaCha20-Poly1305 |
+|---|---|---|
+| Latensi dekripsi rata-rata (n = 1000) | 64,73 µs | 116,84 µs |
+| Waktu proses autentikasi end-to-end | 146,00 ms | 145,89 ms |
+| Alokasi heap saat operasi | 84 B | 340 B |
+| Ukuran state internal | 40 B | 240 B |
+
+ASCON unggul sekitar 1,8 kali pada latensi dekripsi dan jauh lebih hemat memori, karena berbasis satu permutasi sponge monolitik dengan state 320 bit. ChaCha20-Poly1305 memakai dua primitif terpisah (cipher ChaCha20 dan autentikator Poly1305) sehingga kebutuhan memorinya lebih besar. Pada waktu proses end-to-end keduanya praktis setara karena durasi didominasi komunikasi serial, bukan komputasi kriptografi. Analisis lengkap tersedia pada dokumen Tugas Akhir.
 
 ## 📚 Sumber Library
 
@@ -104,26 +135,28 @@ Perbandingan lengkap ASCON vs ChaCha20-Poly1305 serta analisis terhadap peneliti
 
 | Library | Kegunaan | Sumber |
 |---|---|---|
-| ASCON C reference (`api.h`, `crypto_aead.h`) | Implementasi ASCON-AEAD128 pada firmware | https://github.com/ascon/ascon-c |
-| Arduino-ESP32 core (`WiFi.h`, `LittleFS.h`, `Preferences.h`) | Board support, penyimpanan konfigurasi & kredensial | https://github.com/espressif/arduino-esp32 |
+| ASCON C reference (`api.h`, `crypto_aead.h`) | Implementasi ASCON-AEAD128 pada firmware varian ASCON | https://github.com/ascon/ascon-c |
+| Arduino Cryptography Library (`Crypto.h`, `ChaChaPoly.h`) | Implementasi ChaCha20-Poly1305 pada firmware varian ChaCha | https://github.com/rweather/arduinolibs |
+| Arduino-ESP32 core (`WiFi.h`, `LittleFS.h`, `Preferences.h`) | Board support, penyimpanan konfigurasi dan kredensial | https://github.com/espressif/arduino-esp32 |
 | Adafruit NeoPixel (`Adafruit_NeoPixel.h`) | Kendali LED indikator status | https://github.com/adafruit/Adafruit_NeoPixel |
-| Arduino Cryptography Library (`Crypto.h`, `ChaChaPoly.h`) | Varian pembanding ChaCha20-Poly1305 | https://github.com/rweather/arduinolibs |
 
 ### Aplikasi (Python)
 
 | Library | Kegunaan | Sumber |
 |---|---|---|
-| pyascon, diadaptasi sebagai `ascon_nist.py` | Implementasi ASCON-AEAD128 (NIST SP 800-232) sisi aplikasi | https://github.com/meichlseder/pyascon |
-| PyCryptodome (`Crypto.Protocol.KDF`, `Crypto.Hash`) | Derivasi kunci PBKDF2-HMAC-SHA256 (600.000 iterasi) | https://github.com/Legrandin/pycryptodome |
-| pySerial | Komunikasi serial aplikasi ↔ ESP32-S3 | https://github.com/pyserial/pyserial |
+| pyascon, diadaptasi sebagai `ascon_nist.py` | Implementasi ASCON-AEAD128 (NIST SP 800-232) pada aplikasi varian ASCON | https://github.com/meichlseder/pyascon |
+| PyCryptodome: `Crypto.Cipher.ChaCha20_Poly1305` | Implementasi ChaCha20-Poly1305 pada aplikasi varian ChaCha | https://github.com/Legrandin/pycryptodome |
+| PyCryptodome: `Crypto.Protocol.KDF`, `Crypto.Hash` | Derivasi kunci PBKDF2-HMAC-SHA256 (600.000 iterasi) pada kedua varian | https://github.com/Legrandin/pycryptodome |
+| pySerial | Komunikasi serial antara aplikasi dan ESP32-S3 | https://github.com/pyserial/pyserial |
 | Tkinter | Antarmuka grafis aplikasi | Pustaka standar Python |
 | PyInstaller | Pengemasan aplikasi menjadi .exe portabel | https://pyinstaller.org |
 
 ### Referensi utama
 
-- NIST SP 800-232, *Ascon-Based Lightweight Cryptography Standards for Constrained Devices*
+- NIST SP 800-232: *Ascon-Based Lightweight Cryptography Standards for Constrained Devices*
 - Spesifikasi ASCON: https://ascon.iaik.tugraz.at/
-- Datasheet FSUSB42MUX (onsemi), *Low-Power, Two-Port, High-Speed USB 2.0 Switch*
+- RFC 8439: *ChaCha20 and Poly1305 for IETF Protocols*
+- Datasheet FSUSB42MUX (onsemi): *Low-Power, Two-Port, High-Speed USB 2.0 Switch*
 
 ## 🎓 Tentang Proyek
 
