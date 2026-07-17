@@ -48,7 +48,7 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 
 - Fungsi AEAD pada diagram di atas berlaku untuk kedua varian: ASCON-AEAD128 maupun ChaCha20-Poly1305.
 - Nonce dibangkitkan oleh TRNG ESP32-S3 dan tidak pernah dipakai ulang (diverifikasi pada 1.000.000 sampel dengan 0% perulangan).
-- Payload memuat kode instruksi, identitas perangkat (serial number), dan timestamp; format divalidasi sebelum diproses.
+- Payload memuat kode instruksi, identitas perangkat (serial number), dan timestamp. Format divalidasi sebelum diproses.
 - Kegagalan apa pun (tag salah, format salah, timeout 5 detik) membuat sistem tetap atau kembali **fail-closed**.
 
 ## Struktur Repositori
@@ -68,13 +68,13 @@ Aplikasi sudah tersedia dalam bentuk **executable portabel (.exe)** di folder [`
 
 1. Unduh file .exe dari folder `Aplikasi/` sesuai varian yang diinginkan (ASCON-AEAD128 atau ChaCha20-Poly1305).
 2. Hubungkan SD-Blocker ke laptop melalui kabel USB.
-3. Jalankan file .exe dengan klik dua kali. Serial number perangkat akan terdeteksi secara otomatis.
+3. Jalankan file .exe.
 
-> Catatan: karena executable tidak ditandatangani secara digital, Windows SmartScreen mungkin menampilkan peringatan saat pertama kali dijalankan. Pilih **More info > Run anyway**.
+> Catatan: Windows SmartScreen mungkin menampilkan peringatan saat pertama kali dijalankan. Pilih **More info > Run anyway**.
 
 Fitur kedua varian aplikasi identik: deteksi serial number otomatis (read-only), buka jalur data, tutup sesi, ganti password, dan penyimpanan log aktivitas (.txt) dengan timestamp.
 
-### Menjalankan dari source code (opsional, untuk pengembangan)
+### Menjalankan dari source code
 
 **Kebutuhan:** Python 3.10+, Windows/Linux.
 
@@ -115,7 +115,7 @@ Kedua firmware memakai alur autentikasi, penyimpanan kredensial (Preferences/Lit
 
 ## Ringkasan Hasil Pengujian
 
-### Pengujian fungsional (berlaku untuk kedua varian)
+### Pengujian fungsional
 
 | Pengujian | Hasil |
 |---|---|
