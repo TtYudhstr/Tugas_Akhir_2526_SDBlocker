@@ -7,13 +7,13 @@ Repositori ini memuat seluruh aset Tugas Akhir, meliputi *source code* firmware,
 1. **ASCON-AEAD128** (NIST SP 800-232) sebagai implementasi utama, dan
 2. **ChaCha20-Poly1305** (RFC 8439) sebagai implementasi pembanding.
 
-> 🎬 **Video simulasi perangkat:** https://www.youtube.com/watch?v=aObp-zUMLXI
+> **Video simulasi perangkat:** https://www.youtube.com/watch?v=aObp-zUMLXI
 >
 > [![Simulasi SD-Blocker](https://img.youtube.com/vi/aObp-zUMLXI/maxresdefault.jpg)](https://www.youtube.com/watch?v=aObp-zUMLXI)
 
 ---
 
-## 📌 Latar Belakang
+## Latar Belakang
 
 *Charging station* publik di bandara, stasiun, dan kafe menyimpan risiko **juice jacking**, yaitu pencurian data atau penyisipan *malware* melalui jalur data USB yang aktif tanpa disadari pengguna saat mengisi daya. USB data blocker pasif yang beredar di pasaran memutus jalur data secara **permanen**. Pendekatan tersebut aman, tetapi tidak fleksibel karena pengguna tidak dapat melakukan transfer data sama sekali.
 
@@ -23,7 +23,7 @@ Repositori ini memuat seluruh aset Tugas Akhir, meliputi *source code* firmware,
 - Jalur data **hanya terbuka** setelah pengguna terautentikasi melalui protokol *challenge-response* berbasis AEAD.
 - Saat sesi berakhir, atau ketika autentikasi gagal, sistem selalu kembali ke kondisi tertutup.
 
-## ⚙️ Arsitektur Perangkat
+## Arsitektur Perangkat
 
 | Komponen | Fungsi |
 |---|---|
@@ -51,7 +51,7 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 - Payload memuat kode instruksi, identitas perangkat (serial number), dan timestamp; format divalidasi sebelum diproses.
 - Kegagalan apa pun (tag salah, format salah, timeout 5 detik) membuat sistem tetap atau kembali **fail-closed**.
 
-## 📂 Struktur Repositori
+## Struktur Repositori
 
 ```
 ├── Aplikasi/                      # Aplikasi Authenticator: .exe siap pakai + source code Python
@@ -102,7 +102,7 @@ pyinstaller --onefile --windowed --icon=shield.ico main.py
 pyinstaller --onefile --windowed --icon=shield.ico main_chacha.py
 ```
 
-## 🔌 Kompilasi Firmware
+## Kompilasi Firmware
 
 1. Pasang **Arduino IDE** beserta board package **ESP32 by Espressif** (pilih board *ESP32S3 Dev Module*).
 2. Pasang library yang dibutuhkan (lihat tabel sumber library di bawah).
@@ -113,7 +113,7 @@ pyinstaller --onefile --windowed --icon=shield.ico main_chacha.py
 
 Kedua firmware memakai alur autentikasi, penyimpanan kredensial (Preferences/LittleFS), dan kendali FSUSB42 yang sama. Perbedaannya hanya pada primitif AEAD yang digunakan.
 
-## 📊 Ringkasan Hasil Pengujian
+## Ringkasan Hasil Pengujian
 
 ### Pengujian fungsional (berlaku untuk kedua varian)
 
@@ -134,7 +134,7 @@ Kedua firmware memakai alur autentikasi, penyimpanan kredensial (Preferences/Lit
 
 ASCON unggul sekitar 1,8 kali pada latensi dekripsi dan jauh lebih hemat memori, karena berbasis satu permutasi sponge monolitik dengan state 320 bit. ChaCha20-Poly1305 memakai dua primitif terpisah (cipher ChaCha20 dan autentikator Poly1305) sehingga kebutuhan memorinya lebih besar. Pada waktu proses end-to-end keduanya praktis setara karena durasi didominasi komunikasi serial, bukan komputasi kriptografi. Analisis lengkap tersedia pada dokumen Tugas Akhir.
 
-## 📚 Sumber Library
+## Sumber Library
 
 ### Firmware (Arduino / ESP32-S3)
 
@@ -163,7 +163,7 @@ ASCON unggul sekitar 1,8 kali pada latensi dekripsi dan jauh lebih hemat memori,
 - RFC 8439: *ChaCha20 and Poly1305 for IETF Protocols*
 - Datasheet FSUSB42MUX (onsemi): *Low-Power, Two-Port, High-Speed USB 2.0 Switch*
 
-## 🎓 Tentang Proyek
+## Tentang Proyek
 
 Proyek ini merupakan Tugas Akhir:
 
