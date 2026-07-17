@@ -4,8 +4,8 @@
 
 Repositori ini memuat seluruh aset Tugas Akhir, meliputi *source code* firmware, aplikasi Authenticator, skematik, hingga desain prototipe. Sistem diimplementasikan dalam **dua varian algoritma AEAD** yang diuji dan dibandingkan secara menyeluruh:
 
-1. **ASCON-AEAD128** (NIST SP 800-232) sebagai implementasi utama, dan
-2. **ChaCha20-Poly1305** (RFC 8439) sebagai implementasi pembanding.
+1. **ASCON-AEAD128** (NIST SP 800-232) dan
+2. **ChaCha20-Poly1305** (RFC 8439).
 
 > 🎬 **Video simulasi perangkat:** https://www.youtube.com/watch?v=aObp-zUMLXI
 >
