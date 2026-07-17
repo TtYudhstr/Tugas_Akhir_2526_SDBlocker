@@ -65,8 +65,7 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 ├── app-chacha/          # Aplikasi Authenticator varian ChaCha20-Poly1305 (Python)
 │   ├── main_chacha.py   # GUI Tkinter
 │   └── UX2_ChaCha.py    # Versi CLI
-├── hardware/            # Skematik & desain PCB prototipe
-└── docs/                # Dokumentasi & flowchart
+└── hardware/            # Skematik & desain PCB prototipe
 ```
 
 ## Menjalankan Aplikasi Authenticator
