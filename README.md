@@ -30,7 +30,7 @@ Repositori ini memuat seluruh aset Tugas Akhir, meliputi *source code* firmware,
 | **ESP32-S3** | Mikrokontroler utama: pembangkit nonce (TRNG perangkat keras), verifikasi tag AEAD, kendali switch |
 | **FSUSB42MUX** | IC USB switch yang memutus/menyambungkan jalur D+/D- secara fisik |
 | **LED indikator** | Penanda status perangkat (tertutup / sesi aktif) |
-| **PCB custom** | Desain papan rangkaian prototipe (lihat folder `hardware/`) |
+| **PCB custom** | Desain papan rangkaian prototipe (lihat folder `Printed Circuit Board (PCB)/`) |
 
 ### Protokol Challenge-Response
 
@@ -54,27 +54,19 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 ## 📂 Struktur Repositori
 
 ```
-├── firmware/            # Firmware ESP32-S3 varian ASCON-AEAD128
-│   └── firmware.ino
-├── firmware-chacha/     # Firmware ESP32-S3 varian ChaCha20-Poly1305
-│   └── firmware_chacha.ino
-├── aplikasi/            # Aplikasi Authenticator siap pakai (.exe portabel)
-├── app/                 # Source code aplikasi varian ASCON (Python)
-│   ├── main.py          # GUI Tkinter (splash, autentikasi, sesi, log)
-│   ├── ascon_nist.py    # Implementasi ASCON-AEAD128 (NIST SP 800-232)
-│   └── UX2_ASCON.py     # Versi CLI
-├── app-chacha/          # Source code aplikasi varian ChaCha20-Poly1305 (Python)
-│   ├── main_chacha.py   # GUI Tkinter
-│   └── UX2_ChaCha.py    # Versi CLI
-├── hardware/            # Skematik & desain PCB prototipe
-└── docs/                # Dokumentasi & flowchart
+├── Aplikasi/                      # Aplikasi Authenticator: .exe siap pakai + source code Python
+├── Firmware/                      # Firmware ESP32-S3 (varian ASCON-AEAD128 & ChaCha20-Poly1305)
+├── Printed Circuit Board (PCB)/   # Desain PCB prototipe
+│   ├── Altium/                    # Proyek Altium Designer
+│   └── EasyEDA/                   # Proyek EasyEDA
+└── README.md
 ```
 
 ## 🖥️ Menjalankan Aplikasi Authenticator
 
-Aplikasi sudah tersedia dalam bentuk **executable portabel (.exe)** di folder [`aplikasi/`](aplikasi). Tidak diperlukan instalasi Python maupun library apa pun.
+Aplikasi sudah tersedia dalam bentuk **executable portabel (.exe)** di folder [`Aplikasi/`](Aplikasi). Tidak diperlukan instalasi Python maupun library apa pun.
 
-1. Unduh file .exe dari folder `aplikasi/` sesuai varian yang diinginkan (ASCON-AEAD128 atau ChaCha20-Poly1305).
+1. Unduh file .exe dari folder `Aplikasi/` sesuai varian yang diinginkan (ASCON-AEAD128 atau ChaCha20-Poly1305).
 2. Hubungkan SD-Blocker ke laptop melalui kabel USB.
 3. Jalankan file .exe dengan klik dua kali. Serial number perangkat akan terdeteksi secara otomatis.
 
@@ -88,33 +80,35 @@ Fitur kedua varian aplikasi identik: deteksi serial number otomatis (read-only),
 
 ```bash
 pip install pyserial pycryptodome
+cd Aplikasi
 
 # Varian ASCON-AEAD128
-python app/main.py
+python main.py
 
 # Varian ChaCha20-Poly1305
-python app-chacha/main_chacha.py
+python main_chacha.py
 ```
 
 Membangun ulang *executable* portabel (Windows):
 
 ```bash
 pip install pyinstaller
+cd Aplikasi
 
 # Varian ASCON
-pyinstaller --onefile --windowed --icon=shield.ico app/main.py
+pyinstaller --onefile --windowed --icon=shield.ico main.py
 
 # Varian ChaCha20-Poly1305
-pyinstaller --onefile --windowed --icon=shield.ico app-chacha/main_chacha.py
+pyinstaller --onefile --windowed --icon=shield.ico main_chacha.py
 ```
 
 ## 🔌 Kompilasi Firmware
 
 1. Pasang **Arduino IDE** beserta board package **ESP32 by Espressif** (pilih board *ESP32S3 Dev Module*).
 2. Pasang library yang dibutuhkan (lihat tabel sumber library di bawah).
-3. Pilih varian yang diinginkan:
-   - `firmware/firmware.ino` untuk varian ASCON-AEAD128, atau
-   - `firmware-chacha/firmware_chacha.ino` untuk varian ChaCha20-Poly1305.
+3. Pilih varian yang diinginkan pada folder `Firmware/`:
+   - `firmware.ino` untuk varian ASCON-AEAD128, atau
+   - `firmware_chacha.ino` untuk varian ChaCha20-Poly1305.
 4. *Upload* ke ESP32-S3.
 
 Kedua firmware memakai alur autentikasi, penyimpanan kredensial (Preferences/LittleFS), dan kendali FSUSB42 yang sama. Perbedaannya hanya pada primitif AEAD yang digunakan.
