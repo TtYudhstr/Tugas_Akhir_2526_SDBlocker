@@ -62,7 +62,7 @@ SD-Blocker (ESP32-S3)                    Laptop (Aplikasi Authenticator)
 └── README.md
 ```
 
-## 🖥️ Menjalankan Aplikasi Authenticator
+## Menjalankan Aplikasi Authenticator
 
 Aplikasi sudah tersedia dalam bentuk **executable portabel (.exe)** di folder [`Aplikasi/`](Aplikasi). Tidak diperlukan instalasi Python maupun library apa pun.
 
